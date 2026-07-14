@@ -1,3 +1,7 @@
+"""
+Hacked DevOps Agent Simulation.
+Simulates an AI agent executing a malicious shell command to exfiltrate data.
+"""
 import time
 from common import simulate_llm_thinking, emit_json_rpc
 

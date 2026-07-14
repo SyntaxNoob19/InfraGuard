@@ -1,3 +1,7 @@
+"""
+Common utilities for AI agents.
+Provides functions to simulate LLM thinking and emit structured JSON-RPC payloads.
+"""
 import sys
 import time
 import json

@@ -1,3 +1,7 @@
+"""
+Safe Database Agent Simulation.
+Simulates an AI agent executing a harmless SELECT database query.
+"""
 import time
 from common import simulate_llm_thinking, emit_json_rpc
 

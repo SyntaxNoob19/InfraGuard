@@ -1,3 +1,7 @@
+"""
+Execution Controller module.
+Manages the OS-level subprocess lifecycles and provides mechanisms to pause, resume, or terminate agent processes.
+"""
 from typing import Dict, Optional
 import asyncio
 from dataclasses import dataclass

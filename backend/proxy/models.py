@@ -1,3 +1,7 @@
+"""
+Data models for the InfraGuard proxy.
+Defines incidents, logs, system state, and severity levels.
+"""
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, List, Dict
@@ -21,6 +25,7 @@ class LogType(Enum):
     WARNING = "WARNING"
     ERROR = "ERROR"
     SUCCESS = "SUCCESS"
+    ADMIN = "ADMIN"
 
 @dataclass
 class LogEntry:
@@ -39,10 +44,13 @@ class Incident:
     status: ThreatStatus
     timestamp: str
     payload: Dict[str, Any]
+    resolved_action: str | None = None
+    resolution_timestamp: str | None = None
 
 @dataclass
 class AppState:
     system_status: SystemStatus = SystemStatus.SECURE
     active_agents: int = 0
     active_threats: List[Incident] = field(default_factory=list)
+    resolved_threats: List[Incident] = field(default_factory=list)
     recent_logs: List[LogEntry] = field(default_factory=list)

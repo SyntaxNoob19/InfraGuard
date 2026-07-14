@@ -1,3 +1,7 @@
+"""
+State Management module.
+Manages the singleton AppState, incident history, and system status tracking.
+"""
 import copy
 import uuid
 from typing import Dict, Any
@@ -54,18 +58,32 @@ class StateManager:
         self.add_log(LogType.WARNING, f"Incident Created: {incident.incident_id} for agent {agent_id}")
         return incident
         
-    def clear_incident(self, incident_id: str) -> bool:
-        """Removes an incident and potentially resets system status."""
-        initial_length = len(self._state.active_threats)
+    def clear_incident(self, incident_id: str, action: str) -> bool:
+        """Removes an incident from active threats, logs the resolution, and moves it to history."""
+        target_incident = None
+        for inc in self._state.active_threats:
+            if inc.incident_id == incident_id:
+                target_incident = inc
+                break
+                
+        if not target_incident:
+            return False
+            
+        target_incident.resolved_action = action
+        target_incident.resolution_timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        self._state.resolved_threats.append(target_incident)
+        
         self._state.active_threats = [
             inc for inc in self._state.active_threats if inc.incident_id != incident_id
         ]
         
-        if len(self._state.active_threats) < initial_length:
-            if len(self._state.active_threats) == 0:
-                self.set_system_status(SystemStatus.SECURE)
-            return True
-        return False
+        self.add_log(LogType.INFO, f"Incident Closed: {incident_id}")
+        
+        if len(self._state.active_threats) == 0:
+            self.set_system_status(SystemStatus.SECURE)
+            self.add_log(LogType.SUCCESS, "System Returned To Secure")
+            
+        return True
         
     def update_active_agents(self, delta: int) -> None:
         """Adjusts the count of active agents."""

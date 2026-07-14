@@ -1,3 +1,7 @@
+"""
+Threat detection engine.
+Analyzes parsed JSON payloads against defined security rules to classify severity.
+"""
 from dataclasses import dataclass
 from typing import Any
 from models import Severity

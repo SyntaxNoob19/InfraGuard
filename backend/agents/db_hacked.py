@@ -1,3 +1,7 @@
+"""
+Hacked Database Agent Simulation.
+Simulates an AI agent executing a malicious DROP TABLE query due to prompt injection.
+"""
 import time
 from common import simulate_llm_thinking, emit_json_rpc
 
