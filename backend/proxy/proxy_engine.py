@@ -5,6 +5,11 @@ import json
 import argparse
 
 import detector
+from models import LogType, Severity
+from state_manager import StateManager
+
+# Create a single instance of the State Manager
+state_manager = StateManager()
 
 async def run_proxy(agent_filename: str) -> None:
     """
@@ -19,6 +24,8 @@ async def run_proxy(agent_filename: str) -> None:
         return
 
     print("Launching Agent...", flush=True)
+    state_manager.add_log(LogType.INFO, f"Agent Started: {agent_filename}")
+    state_manager.update_active_agents(1)
     
     try:
         process = await asyncio.create_subprocess_exec(
@@ -28,12 +35,18 @@ async def run_proxy(agent_filename: str) -> None:
         )
     except FileNotFoundError:
         print("[Proxy Error] Python executable not found.", file=sys.stderr)
+        state_manager.add_log(LogType.ERROR, "Python executable not found")
+        state_manager.update_active_agents(-1)
         return
     except PermissionError:
         print(f"[Proxy Error] Permission denied executing {agent_path}.", file=sys.stderr)
+        state_manager.add_log(LogType.ERROR, f"Permission denied executing {agent_filename}")
+        state_manager.update_active_agents(-1)
         return
     except Exception as e:
         print(f"[Proxy Error] Failed to launch subprocess: {e}", file=sys.stderr)
+        state_manager.add_log(LogType.ERROR, f"Failed to launch subprocess: {e}")
+        state_manager.update_active_agents(-1)
         return
 
     try:
@@ -64,13 +77,32 @@ async def run_proxy(agent_filename: str) -> None:
                             print("Invalid JSON-RPC payload")
                             continue
                             
+                        state_manager.add_log(LogType.INFO, "Payload Parsed")
+                            
                         # Threat Detection
                         result = detector.analyze_payload(payload)
+                        agent_id = payload.get("agent_id", "Unknown")
+                        method = payload.get("method", "Unknown")
                         
                         if result.is_threat:
                             print(f"[THREAT DETECTED] Severity: {result.severity} | Rule: {result.matched_rule} | Reason: {result.reason}")
+                            state_manager.add_log(LogType.WARNING, f"Threat Detected: {result.matched_rule}")
+                            
+                            try:
+                                sev_enum = Severity(result.severity)
+                            except ValueError:
+                                sev_enum = Severity.HIGH
+                                
+                            incident = state_manager.create_incident(
+                                agent_id=agent_id,
+                                method=method,
+                                severity=sev_enum,
+                                matched_rule=result.matched_rule,
+                                reason=result.reason,
+                                payload=payload
+                            )
+                            print(f"Incident Created: {incident.incident_id}")
                         else:
-                            method = payload.get("method", "Unknown")
                             print(f"[SAFE] Method executed safely: {method}")
                             
                     except json.JSONDecodeError:
@@ -79,12 +111,16 @@ async def run_proxy(agent_filename: str) -> None:
                         
     except Exception as e:
         print(f"[Proxy Error] Error while reading stdout: {e}", file=sys.stderr)
+        state_manager.add_log(LogType.ERROR, f"Error reading stdout: {e}")
     
     return_code = await process.wait()
     if return_code != 0:
         print(f"[Proxy Warning] Agent exited with return code: {return_code}", file=sys.stderr)
     else:
         print("Agent exited successfully.")
+        
+    state_manager.add_log(LogType.INFO, f"Agent Finished: {agent_filename}")
+    state_manager.update_active_agents(-1)
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="InfraGuard Proxy Engine")
