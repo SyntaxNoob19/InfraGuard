@@ -16,7 +16,7 @@ class ResolveRequest(BaseModel):
     action: str
 
 security = HTTPBearer()
-API_KEY = "hackathon-secret-key"
+API_KEY = "YOUR_API_KEY_HERE"
 
 def verify_token(credentials: HTTPAuthorizationCredentials = Security(security)) -> str:
     if credentials.credentials != API_KEY:

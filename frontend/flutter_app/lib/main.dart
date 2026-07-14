@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/threat_provider.dart';
-import 'screens/threat_monitor.dart';
+import 'screens/splash_screen.dart';
+import 'services/background_service.dart';
+import 'services/notification_service.dart';
+import 'theme/app_theme.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService().init();
+  await initializeBackgroundService();
   runApp(const InfraGuardApp());
 }
 
@@ -19,25 +25,8 @@ class InfraGuardApp extends StatelessWidget {
       child: MaterialApp(
         title: 'InfraGuard',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData.dark().copyWith(
-          scaffoldBackgroundColor: const Color(0xFF0F172A), // Slate 900
-          colorScheme: const ColorScheme.dark(
-            primary: Color(0xFF38BDF8), // Light Blue
-            secondary: Color(0xFF818CF8), // Indigo
-            surface: Color(0xFF1E293B), // Slate 800
-            error: Color(0xFFEF4444), // Red 500
-          ),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Color(0xFF0F172A),
-            elevation: 0,
-            centerTitle: true,
-          ),
-          cardTheme: const CardThemeData(
-            color: Color(0xFF1E293B),
-            elevation: 8,
-          ),
-        ),
-        home: const ThreatMonitorScreen(),
+        theme: AppTheme.theme,
+        home: const SplashScreen(),
       ),
     );
   }

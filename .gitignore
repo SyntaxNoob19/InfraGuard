@@ -1,24 +1,37 @@
 # Python
 __pycache__/
-*.py[cod]
+*.pyc
 *.pyo
-
-# Virtual Environment
 venv/
 .venv/
-
-# VS Code
-.vscode/
+.env
 
 # Flutter
 .dart_tool/
 build/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+ios/Pods/
+android/.gradle/
+android/local.properties
 
-# macOS
-.DS_Store
-
-# Windows
+# OS & IDE
+.idea/
+.vscode/
 Thumbs.db
+.DS_Store
+Desktop.ini
 
-# Environment
-.env
+# Logs & Temp
+logs/
+tmp/
+cache/
+*.log
+
+# Keep explicitly required
+!assets/
+!docs/
+!README.md
+!requirements.txt
+!pubspec.yaml
