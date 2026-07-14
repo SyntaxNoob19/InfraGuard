@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from typing import Any
+from models import Severity
 
 @dataclass
 class ThreatResult:
     is_threat: bool
-    severity: str
+    severity: Severity
     matched_rule: str
     reason: str
 
@@ -19,7 +20,7 @@ def analyze_payload(payload: dict[str, Any]) -> ThreatResult:
     if method == "execute_shell":
         return ThreatResult(
             is_threat=True,
-            severity="HIGH",
+            severity=Severity.HIGH,
             matched_rule="execute_shell detected",
             reason="Payload attempts to execute an arbitrary shell command."
         )
@@ -30,7 +31,7 @@ def analyze_payload(payload: dict[str, Any]) -> ThreatResult:
         if any(keyword in query for keyword in ["DROP", "DELETE", "TRUNCATE"]):
             return ThreatResult(
                 is_threat=True,
-                severity="HIGH",
+                severity=Severity.HIGH,
                 matched_rule="Destructive SQL detected",
                 reason="Payload contains DROP, DELETE, or TRUNCATE operations."
             )
@@ -41,7 +42,7 @@ def analyze_payload(payload: dict[str, Any]) -> ThreatResult:
         if ".env" in file_path:
             return ThreatResult(
                 is_threat=True,
-                severity="MEDIUM",
+                severity=Severity.MEDIUM,
                 matched_rule=".env read detected",
                 reason="Payload attempts to read sensitive environment variables."
             )
@@ -49,7 +50,7 @@ def analyze_payload(payload: dict[str, Any]) -> ThreatResult:
     # Otherwise: Safe
     return ThreatResult(
         is_threat=False,
-        severity="LOW",
+        severity=Severity.LOW,
         matched_rule="None",
         reason="No malicious intent detected."
     )

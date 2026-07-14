@@ -3,15 +3,18 @@ import sys
 import os
 import json
 import argparse
+import uvicorn
 
 import detector
-from models import LogType, Severity
+from models import LogType
 from state_manager import StateManager
+from execution_controller import ExecutionController
 
-# Create a single instance of the State Manager
-state_manager = StateManager()
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(base_dir))
+from backend.api.main import create_app
 
-async def run_proxy(agent_filename: str) -> None:
+async def run_proxy(agent_filename: str, state_manager: StateManager, execution_controller: ExecutionController) -> None:
     """
     Launches an AI agent subprocess, relays non-JSON stdout transparently,
     and parses/validates JSON-RPC payloads through the threat detector.
@@ -85,23 +88,37 @@ async def run_proxy(agent_filename: str) -> None:
                         method = payload.get("method", "Unknown")
                         
                         if result.is_threat:
-                            print(f"[THREAT DETECTED] Severity: {result.severity} | Rule: {result.matched_rule} | Reason: {result.reason}")
+                            print(f"[THREAT DETECTED] Severity: {result.severity.name} | Rule: {result.matched_rule} | Reason: {result.reason}")
                             state_manager.add_log(LogType.WARNING, f"Threat Detected: {result.matched_rule}")
                             
-                            try:
-                                sev_enum = Severity(result.severity)
-                            except ValueError:
-                                sev_enum = Severity.HIGH
-                                
                             incident = state_manager.create_incident(
                                 agent_id=agent_id,
                                 method=method,
-                                severity=sev_enum,
+                                severity=result.severity,
                                 matched_rule=result.matched_rule,
                                 reason=result.reason,
                                 payload=payload
                             )
-                            print(f"Incident Created: {incident.incident_id}")
+                            print(f"Incident Created")
+                            
+                            # Freeze Execution
+                            context = execution_controller.create_execution_context(incident.incident_id, process)
+                            print(f"[Incident {incident.incident_id}] Execution Paused")
+                            print("Waiting For Admin...")
+                            
+                            await execution_controller.pause(incident.incident_id)
+                            
+                            action = context.resolution_action
+                            if action == "ALLOW":
+                                print(f"[Incident {incident.incident_id}] Admin Action: ALLOW -> Execution resumed normally.")
+                            elif action == "BLOCK" or action == "BLOCK_COMMAND":
+                                print(f"[Incident {incident.incident_id}] Admin Action: BLOCK_COMMAND -> Malicious payload discarded. Execution resumed.")
+                            elif action == "QUARANTINE":
+                                print(f"[Incident {incident.incident_id}] Admin Action: QUARANTINE -> Subprocess terminated. Agent killed.")
+                            else:
+                                print(f"Execution Resumed with action: {action}")
+                            
+                            execution_controller.remove(incident.incident_id)
                         else:
                             print(f"[SAFE] Method executed safely: {method}")
                             
@@ -122,13 +139,36 @@ async def run_proxy(agent_filename: str) -> None:
     state_manager.add_log(LogType.INFO, f"Agent Finished: {agent_filename}")
     state_manager.update_active_agents(-1)
 
+async def run_everything(agent_filename: str, state_manager: StateManager, execution_controller: ExecutionController) -> None:
+    app = create_app(state_manager, execution_controller)
+    
+    config = uvicorn.Config(app, host="127.0.0.1", port=8000, log_level="error")
+    server = uvicorn.Server(config)
+    
+    # Run the server in a background task
+    server_task = asyncio.create_task(server.serve())
+    
+    # Wait briefly to ensure server starts
+    await asyncio.sleep(0.5)
+    
+    # Run the proxy logic
+    await run_proxy(agent_filename, state_manager, execution_controller)
+    
+    # Tell server to shutdown after proxy finishes
+    server.should_exit = True
+    await server_task
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="InfraGuard Proxy Engine")
     parser.add_argument("agent", nargs="?", default="db_safe.py", help="Agent script to run (default: db_safe.py)")
     args = parser.parse_args()
     
+    # Dependency Injection
+    state_manager = StateManager()
+    execution_controller = ExecutionController()
+    
     try:
-        asyncio.run(run_proxy(args.agent))
+        asyncio.run(run_everything(args.agent, state_manager, execution_controller))
     except KeyboardInterrupt:
         print("\n[Proxy] Shutting down due to KeyboardInterrupt.", file=sys.stderr)
 

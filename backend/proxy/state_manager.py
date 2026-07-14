@@ -5,6 +5,8 @@ from datetime import datetime, timezone
 
 from models import AppState, SystemStatus, Incident, ThreatStatus, Severity, LogEntry, LogType
 
+MAX_LOG_ENTRIES = 100
+
 class StateManager:
     """
     Owns the single AppState instance.
@@ -18,10 +20,19 @@ class StateManager:
         return copy.deepcopy(self._state)
         
     def add_log(self, log_type: LogType, message: str) -> None:
-        """Appends a new log entry to the state."""
+        """Appends a new log entry to the state, preventing unbounded growth."""
         timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         log_entry = LogEntry(type=log_type, message=message, timestamp=timestamp)
         self._state.recent_logs.append(log_entry)
+        
+        if len(self._state.recent_logs) > MAX_LOG_ENTRIES:
+            self._state.recent_logs.pop(0)
+            
+    def set_system_status(self, new_status: SystemStatus) -> None:
+        old_status = self._state.system_status
+        if old_status != new_status:
+            self._state.system_status = new_status
+            self.add_log(LogType.INFO, f"System status changed from {old_status.name} to {new_status.name}")
         
     def create_incident(self, agent_id: str, method: str, severity: Severity, matched_rule: str, reason: str, payload: Dict[str, Any]) -> Incident:
         """Creates a new incident, updates system status, and logs the event."""
@@ -38,7 +49,7 @@ class StateManager:
             payload=payload
         )
         self._state.active_threats.append(incident)
-        self._state.system_status = SystemStatus.THREAT_DETECTED
+        self.set_system_status(SystemStatus.THREAT_DETECTED)
         
         self.add_log(LogType.WARNING, f"Incident Created: {incident.incident_id} for agent {agent_id}")
         return incident
@@ -52,8 +63,7 @@ class StateManager:
         
         if len(self._state.active_threats) < initial_length:
             if len(self._state.active_threats) == 0:
-                self._state.system_status = SystemStatus.SECURE
-                self.add_log(LogType.INFO, "System returned to SECURE state")
+                self.set_system_status(SystemStatus.SECURE)
             return True
         return False
         
