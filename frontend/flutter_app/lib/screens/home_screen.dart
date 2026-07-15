@@ -6,7 +6,6 @@ import '../theme/app_theme.dart';
 import '../widgets/connection_badge.dart';
 import '../widgets/monitoring_view.dart';
 import '../widgets/threat_view.dart';
-import 'settings_screen.dart';
 
 /// The single root screen of InfraGuard.
 /// Drives the four application states from live provider data.
@@ -72,29 +71,41 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
-        IconButton(
-          icon: const Icon(Icons.settings, color: AppTheme.primaryText),
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const SettingsScreen()),
-            );
-          },
-        ),
+        // IconButton(
+        //   icon: const Icon(Icons.settings, color: AppTheme.primaryText),
+        //   onPressed: () {
+        //     Navigator.of(context).push(
+        //       MaterialPageRoute(builder: (_) => const SettingsScreen()),
+        //     );
+        //   },
+        // ),
         const SizedBox(width: 8),
       ],
     );
   }
 
-  Widget _buildState(BuildContext context, ThreatProvider provider, _AppState state) {
+  Widget _buildState(
+    BuildContext context,
+    ThreatProvider provider,
+    _AppState state,
+  ) {
     return switch (state) {
-      _AppState.connecting  => const _ConnectingView(key: ValueKey('connecting')),
-      _AppState.offline     => _OfflineView(key: const ValueKey('offline'), provider: provider),
-      _AppState.monitoring  => MonitoringView(key: const ValueKey('monitoring'), provider: provider),
-      _AppState.threat      => ThreatView(
-                                key: const ValueKey('threat'),
-                                provider: provider,
-                                onAction: _handleAction,
-                              ),
+      _AppState.connecting => const _ConnectingView(
+        key: ValueKey('connecting'),
+      ),
+      _AppState.offline => _OfflineView(
+        key: const ValueKey('offline'),
+        provider: provider,
+      ),
+      _AppState.monitoring => MonitoringView(
+        key: const ValueKey('monitoring'),
+        provider: provider,
+      ),
+      _AppState.threat => ThreatView(
+        key: const ValueKey('threat'),
+        provider: provider,
+        onAction: _handleAction,
+      ),
     };
   }
 
@@ -107,12 +118,21 @@ class HomeScreen extends StatelessWidget {
     final success = await provider.resolve(incident.incidentId, action);
     if (!context.mounted) return;
     final msgs = {
-      'ALLOW':         success ? 'Execution resumed. Action permitted.' : 'Failed to allow. Check connection.',
-      'BLOCK_COMMAND': success ? 'Command blocked. Payload discarded.' : 'Failed to block. Check connection.',
-      'QUARANTINE':    success ? 'Agent terminated. Process killed.' : 'Failed to quarantine. Check connection.',
+      'ALLOW': success
+          ? 'Execution resumed. Action permitted.'
+          : 'Failed to allow. Check connection.',
+      'BLOCK_COMMAND': success
+          ? 'Command blocked. Payload discarded.'
+          : 'Failed to block. Check connection.',
+      'QUARANTINE': success
+          ? 'Agent terminated. Process killed.'
+          : 'Failed to quarantine. Check connection.',
     };
-    AppTheme.showSnack(context,
-        message: msgs[action] ?? 'Action sent.', success: success);
+    AppTheme.showSnack(
+      context,
+      message: msgs[action] ?? 'Action sent.',
+      success: success,
+    );
   }
 }
 
@@ -142,10 +162,7 @@ class _ConnectingView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            Text(
-              'Connecting',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text('Connecting', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 6),
             const Text(
               'Establishing secure connection to the proxy...',
@@ -185,18 +202,30 @@ class _OfflineView extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppTheme.red.withAlpha(15),
-                border: Border.all(color: AppTheme.red.withAlpha(70), width: 1.5),
+                border: Border.all(
+                  color: AppTheme.red.withAlpha(70),
+                  width: 1.5,
+                ),
               ),
-              child: const Icon(Icons.cloud_off_rounded,
-                  color: AppTheme.red, size: 40),
+              child: const Icon(
+                Icons.cloud_off_rounded,
+                color: AppTheme.red,
+                size: 40,
+              ),
             ),
             const SizedBox(height: 24),
-            Text('Proxy Offline', style: Theme.of(context).textTheme.headlineMedium),
+            Text(
+              'Proxy Offline',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
             const SizedBox(height: 8),
             if (lastSeen != null) ...[
               Text(
                 'Last heartbeat: $lastSeen',
-                style: const TextStyle(fontSize: 14, color: AppTheme.secondaryText),
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppTheme.secondaryText,
+                ),
               ),
               const SizedBox(height: 4),
             ],

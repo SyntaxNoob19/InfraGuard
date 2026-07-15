@@ -1,6 +1,6 @@
 {
-    "name": "infra_guard",
-    "short_name": "infra_guard",
+    "name": "InfraGuard",
+    "short_name": "InfraGuard",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
