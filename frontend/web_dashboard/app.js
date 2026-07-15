@@ -319,8 +319,31 @@ function updateTimeline(active, resolved) {
         }
     });
     
-    if (!selectedIncidentId && active.length > 0) {
-        selectThreat(active[0], true);
+    // Auto-select next active threat, or clear panel if none active
+    if (active.length > 0) {
+        const currentlySelectedActive = active.some(x => x.incident_id === selectedIncidentId);
+        if (!currentlySelectedActive) {
+            selectThreat(active[0], true);
+        }
+    } else {
+        selectedIncidentId = null;
+        threatPanel.classList.add('opacity-50', 'pointer-events-none');
+        threatPanel.classList.remove('shadow-[0_0_20px_rgba(255,42,77,0.2)]');
+        detailAgent.innerText = '--';
+        detailMethod.innerText = '--';
+        detailRule.innerText = '--';
+        detailSeverity.innerText = '--';
+        detailCommand.innerText = '--';
+        detailExecState.innerText = 'WAITING...';
+        detailPayload.innerHTML = '{}';
+        detailImpact.innerText = '--';
+        
+        document.getElementById('btn-quarantine').disabled = true;
+        document.getElementById('btn-block').disabled = true;
+        document.getElementById('btn-allow').disabled = true;
+        document.getElementById('btn-quarantine').classList.add('opacity-50');
+        document.getElementById('btn-block').classList.add('opacity-50');
+        document.getElementById('btn-allow').classList.add('opacity-50');
     }
 }
 
@@ -415,7 +438,7 @@ async function resolveAction(event, incidentId, action) {
             body: JSON.stringify({ incident_id: incidentId, action: action })
         });
         if (response.ok) {
-            // Handled by websocket update!
+            showToast(`Action ${action} successful`);
         } else {
             alert('Action failed. Backend may be offline or incident already resolved.');
         }
@@ -423,6 +446,24 @@ async function resolveAction(event, incidentId, action) {
         console.error('Resolve Error:', e);
         alert('Network error communicating with Proxy Engine.');
     }
+}
+
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-5 right-5 bg-ig-primary text-black px-6 py-3 rounded shadow-lg font-bold z-50 transform transition-all duration-300 translate-y-10 opacity-0';
+    toast.innerText = message;
+    document.body.appendChild(toast);
+    
+    // animate in
+    requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-10', 'opacity-0');
+    });
+    
+    // remove after 3s
+    setTimeout(() => {
+        toast.classList.add('translate-y-10', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
 // Clear notification count on click

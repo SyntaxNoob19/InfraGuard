@@ -103,7 +103,7 @@ def create_app(state_manager: StateManager, execution_controller: ExecutionContr
         return state_manager.get_state()
         
     @app.post("/api/resolve")
-    def resolve_incident(req: ResolveRequest, token: str = Depends(verify_token)):
+    async def resolve_incident(req: ResolveRequest, token: str = Depends(verify_token)):
         incident_id = req.incident_id
         action = req.action.upper()
         

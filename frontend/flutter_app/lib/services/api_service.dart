@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import 'dart:async';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../models/app_state.dart';
 import 'settings_service.dart';
@@ -41,11 +42,12 @@ class ApiService {
 
   void connectWebSocket() {
     try {
-      _channel = WebSocketChannel.connect(Uri.parse('$wsBaseUrl/api/ws'));
-      _connectionController.add(true);
+      _channel = IOWebSocketChannel.connect(Uri.parse('$wsBaseUrl/api/ws'), headers: _headers);
       
       _channel!.stream.listen(
         (message) {
+          // We know the connection is fully established once we receive the first state_update
+          _connectionController.add(true);
           try {
             final decoded = json.decode(message) as Map<String, dynamic>;
             if (decoded['event'] == 'state_update') {
