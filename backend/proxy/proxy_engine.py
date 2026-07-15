@@ -95,6 +95,7 @@ async def run_proxy(agent_filename: str, state_manager: StateManager, execution_
                             continue
                             
                         print("JSON Schema Validated\n↓")
+                        state_manager.increment_payload_count()
                         state_manager.add_log(LogType.INFO, "Payload Parsed")
                             
                         # Threat Detection

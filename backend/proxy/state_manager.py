@@ -4,7 +4,7 @@ Manages the singleton AppState, incident history, and system status tracking.
 """
 import copy
 import uuid
-from typing import Dict, Any
+from typing import Dict, Any, Callable
 from datetime import datetime, timezone
 
 from models import AppState, SystemStatus, Incident, ThreatStatus, Severity, LogEntry, LogType
@@ -18,10 +18,29 @@ class StateManager:
     """
     def __init__(self) -> None:
         self._state = AppState()
+        self._clients: Dict[str, float] = {}
+        self.on_state_change: Callable[[], None] | None = None
+        
+    def _notify(self) -> None:
+        if self.on_state_change:
+            self.on_state_change()
         
     def get_state(self) -> AppState:
         """Returns a deep copy of the application state."""
+        # Prune old clients (e.g. older than 5 seconds)
+        current_time = datetime.now(timezone.utc).timestamp()
+        self._clients = {ip: ts for ip, ts in self._clients.items() if current_time - ts < 5}
+        self._state.connected_clients = len(self._clients)
         return copy.deepcopy(self._state)
+        
+    def update_client_ping(self, client_id: str) -> None:
+        self._clients[client_id] = datetime.now(timezone.utc).timestamp()
+        self._notify()
+        
+    def increment_payload_count(self) -> None:
+        self._state.total_payloads += 1
+        self._notify()
+
         
     def add_log(self, log_type: LogType, message: str) -> None:
         """Appends a new log entry to the state, preventing unbounded growth."""
@@ -31,11 +50,13 @@ class StateManager:
         
         if len(self._state.recent_logs) > MAX_LOG_ENTRIES:
             self._state.recent_logs.pop(0)
+        self._notify()
             
     def set_system_status(self, new_status: SystemStatus) -> None:
         old_status = self._state.system_status
         if old_status != new_status:
             self._state.system_status = new_status
+            # Add log handles the notification, so we don't need to call _notify here
             self.add_log(LogType.INFO, f"System status changed from {old_status.name} to {new_status.name}")
         
     def create_incident(self, agent_id: str, method: str, severity: Severity, matched_rule: str, reason: str, payload: Dict[str, Any]) -> Incident:
@@ -56,6 +77,7 @@ class StateManager:
         self.set_system_status(SystemStatus.THREAT_DETECTED)
         
         self.add_log(LogType.WARNING, f"Incident Created: {incident.incident_id} for agent {agent_id}")
+        self._notify()
         return incident
         
     def clear_incident(self, incident_id: str, action: str) -> bool:
@@ -82,10 +104,12 @@ class StateManager:
         if len(self._state.active_threats) == 0:
             self.set_system_status(SystemStatus.SECURE)
             self.add_log(LogType.SUCCESS, "System Returned To Secure")
-            
+        
+        self._notify()
         return True
         
     def update_active_agents(self, delta: int) -> None:
         """Adjusts the count of active agents."""
         self._state.active_agents += delta
         self._state.active_agents = max(0, self._state.active_agents)
+        self._notify()

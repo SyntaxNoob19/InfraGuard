@@ -5,26 +5,24 @@ import '../theme/app_theme.dart';
 /// Animated connection status chip for the AppBar.
 class ConnectionBadge extends StatelessWidget {
   final ConnectionStatus status;
+  final int clients;
 
-  const ConnectionBadge({super.key, required this.status});
+  const ConnectionBadge({super.key, required this.status, this.clients = 0});
 
   Color get _color => switch (status) {
         ConnectionStatus.connected => AppTheme.green,
-        ConnectionStatus.polling   => AppTheme.amber,
         ConnectionStatus.offline   => AppTheme.red,
         ConnectionStatus.loading   => AppTheme.blue,
       };
 
   IconData get _icon => switch (status) {
         ConnectionStatus.connected => Icons.cloud_done_rounded,
-        ConnectionStatus.polling   => Icons.sync_rounded,
         ConnectionStatus.offline   => Icons.cloud_off_rounded,
         ConnectionStatus.loading   => Icons.sync_rounded,
       };
 
   String get _label => switch (status) {
         ConnectionStatus.connected => 'Connected',
-        ConnectionStatus.polling   => 'Syncing',
         ConnectionStatus.offline   => 'Offline',
         ConnectionStatus.loading   => 'Connecting',
       };
@@ -52,6 +50,24 @@ class ConnectionBadge extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
+          if (clients > 0) ...[
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              decoration: BoxDecoration(
+                color: _color.withAlpha(50),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                '$clients',
+                style: TextStyle(
+                  color: _color,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

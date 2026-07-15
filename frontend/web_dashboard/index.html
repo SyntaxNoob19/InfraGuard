@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InfraGuard Enterprise SOC</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ig: {
+                            bg: '#050A10',
+                            panel: '#0B131E',
+                            secondary: '#111E2E',
+                            border: '#1E2D40',
+                            primary: '#00D856',
+                            primaryHover: '#00F060',
+                            danger: '#FF2A4D',
+                            dangerHover: '#FF4563',
+                            warning: '#FF9900',
+                            warningHover: '#FFAD33',
+                            blue: '#0088FF',
+                            purple: '#A855F7',
+                            textBase: '#F0F4F8',
+                            textMuted: '#7E8C9A'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body id="app-body" class="font-sans antialiased min-h-screen flex flex-col bg-ig-bg text-ig-textBase overflow-x-hidden transition-colors duration-500">
+
+    <!-- Top Navigation -->
+    <header id="main-header" class="bg-ig-panel border-b border-ig-border py-4 px-8 sticky top-0 z-50 flex items-center justify-between transition-colors duration-500">
+        
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-4">
+            <img src="assets/logo.png" alt="InfraGuard Logo" class="h-10 w-10 object-contain">
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-widest uppercase">INFRAGUARD</h1>
+                <p class="text-xs text-ig-textMuted font-bold uppercase tracking-[0.3em]">Enterprise SOC <span class="text-[10px] ml-1">Runtime Protection</span></p>
+            </div>
+        </div>
+        
+        <!-- Global Status -->
+        <div class="flex items-center gap-8">
+            <div id="system-status-badge" class="flex items-center gap-3 px-6 py-2.5 rounded bg-ig-secondary border border-ig-border transition-colors duration-300">
+                <div id="status-indicator" class="w-3.5 h-3.5 rounded-full bg-ig-primary pulse"></div>
+                <span class="text-[10px] text-ig-textMuted uppercase font-bold tracking-widest mr-1">System Status</span>
+                <span id="status-text" class="text-sm font-bold uppercase tracking-widest text-ig-primary">SECURE</span>
+            </div>
+            
+            <div class="h-8 w-px bg-ig-border opacity-50"></div>
+            
+            <!-- Topology Checklist -->
+            <div class="flex items-center gap-5 text-sm font-medium text-ig-textMuted">
+                <div class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-ig-primary"></i>Flutter App</div>
+                <div class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-ig-primary"></i>SOC Dashboard</div>
+                <div class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-ig-primary"></i>Proxy</div>
+                <div class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-ig-primary"></i>FastAPI</div>
+            </div>
+        </div>
+
+        <!-- Right Icons & Profile -->
+        <div class="flex items-center gap-6 text-ig-textMuted">
+            <div class="relative cursor-pointer hover:text-ig-textBase transition-colors group">
+                <i class="ph-fill ph-bell text-2xl"></i>
+                <div id="notification-count" class="absolute -top-1.5 -right-2 bg-ig-danger text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</div>
+                
+                <!-- Notification Dropdown -->
+                <div class="absolute right-0 top-10 w-64 bg-ig-secondary border border-ig-border rounded shadow-xl hidden group-hover:block z-50 overflow-hidden">
+                    <div class="bg-ig-panel px-3 py-2 border-b border-ig-border text-xs font-bold uppercase tracking-wider">Recent Events</div>
+                    <div id="notification-list" class="max-h-64 overflow-y-auto flex flex-col text-xs">
+                        <div class="p-3 text-center text-ig-textMuted">No new notifications</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="h-8 w-px bg-ig-border opacity-50"></div>
+            
+            <div class="text-right">
+                <div id="live-clock" class="text-sm font-mono font-bold text-ig-textBase">00:00:00 UTC</div>
+                <div class="text-[11px] uppercase tracking-wider font-semibold">Admin Profile</div>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-ig-secondary border-2 border-ig-border flex items-center justify-center">
+                <i class="ph ph-user text-xl"></i>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 p-8 w-full flex flex-col gap-8 max-w-[1920px] mx-auto">
+        
+        <!-- Telemetry Cards -->
+        <section class="grid grid-cols-4 gap-6">
+            <div class="telemetry-card bg-ig-panel border border-ig-border p-6 rounded flex flex-col justify-between transition-colors duration-500">
+                <div class="flex justify-between items-start text-ig-textMuted mb-4">
+                    <div>
+                        <span class="text-sm font-bold uppercase tracking-widest text-ig-textBase">Agents Online</span>
+                        <p class="text-[11px] uppercase tracking-wider mt-1 text-ig-blue">Currently Connected</p>
+                    </div>
+                    <i class="ph ph-robot text-2xl"></i>
+                </div>
+                <div id="stat-agents" class="text-4xl font-mono font-bold text-ig-blue">0</div>
+            </div>
+            
+            <div class="telemetry-card bg-ig-panel border border-ig-border p-6 rounded flex flex-col justify-between transition-colors duration-500">
+                <div class="flex justify-between items-start text-ig-textMuted mb-4">
+                    <div>
+                        <span class="text-sm font-bold uppercase tracking-widest text-ig-textBase">Threats Detected</span>
+                        <p class="text-[11px] uppercase tracking-wider mt-1 text-ig-danger">Runtime</p>
+                    </div>
+                    <i class="ph ph-shield-warning text-2xl"></i>
+                </div>
+                <div id="stat-threats" class="text-4xl font-mono font-bold text-ig-danger">0</div>
+            </div>
+
+            <div class="telemetry-card bg-ig-panel border border-ig-border p-6 rounded flex flex-col justify-between transition-colors duration-500">
+                <div class="flex justify-between items-start text-ig-textMuted mb-4">
+                    <div>
+                        <span class="text-sm font-bold uppercase tracking-widest text-ig-textBase">Commands Blocked</span>
+                        <p class="text-[11px] uppercase tracking-wider mt-1 text-ig-warning">Policy Engine</p>
+                    </div>
+                    <i class="ph ph-prohibit text-2xl"></i>
+                </div>
+                <div id="stat-blocked" class="text-4xl font-mono font-bold text-ig-warning">0</div>
+            </div>
+
+            <div class="telemetry-card bg-ig-panel border border-ig-border p-6 rounded flex flex-col justify-between transition-colors duration-500">
+                <div class="flex justify-between items-start text-ig-textMuted mb-4">
+                    <div>
+                        <span class="text-sm font-bold uppercase tracking-widest text-ig-textBase">Payloads Scanned</span>
+                        <p class="text-[11px] uppercase tracking-wider mt-1 text-ig-primary">Total Processed</p>
+                    </div>
+                    <i class="ph ph-file-code text-2xl"></i>
+                </div>
+                <div id="stat-payloads" class="text-4xl font-mono font-bold text-ig-primary">0</div>
+            </div>
+        </section>
+
+        <!-- Hero Section: LIVE EXECUTION PIPELINE -->
+        <section class="bg-ig-panel border border-ig-border rounded p-8 relative overflow-hidden transition-colors duration-500" id="hero-pipeline">
+            <h2 class="text-sm font-bold text-ig-textBase uppercase tracking-widest mb-12">Live Execution Architecture</h2>
+            
+            <div class="relative w-full flex items-center justify-between px-6 pb-4">
+                <!-- Background Connection Line -->
+                <div class="absolute left-14 right-14 top-[30px] h-[2px] bg-ig-border -z-10"></div>
+                
+                <!-- Animated Packet Path Container -->
+                <div class="absolute left-14 right-14 top-[30px] h-[2px] -z-10">
+                    <!-- Glowing Dot -->
+                    <div id="packet-dot" class="w-3 h-3 rounded-full bg-ig-primary absolute -top-[5px] shadow-[0_0_12px_3px_rgba(0,216,86,0.8)] packet-moving"></div>
+                </div>
+
+                <!-- 9 Nodes (Enlarged) -->
+                <div class="pipeline-node" id="node-agent">
+                    <div class="icon-box"><i class="ph-fill ph-robot"></i></div>
+                    <span>AI Agent</span>
+                </div>
+                <div class="pipeline-node" id="node-json">
+                    <div class="icon-box"><i class="ph-bold ph-brackets-curly"></i></div>
+                    <span>JSON RPC</span>
+                </div>
+                <div class="pipeline-node" id="node-proxy">
+                    <div class="icon-box"><i class="ph-fill ph-plugs"></i></div>
+                    <span>Proxy Gateway</span>
+                </div>
+                <div class="pipeline-node" id="node-parser">
+                    <div class="icon-box"><i class="ph-bold ph-code"></i></div>
+                    <span>Parser</span>
+                </div>
+                <div class="pipeline-node" id="node-engine">
+                    <div class="icon-box"><i class="ph-fill ph-shield-check"></i></div>
+                    <span>Threat Engine</span>
+                </div>
+                <div class="pipeline-node" id="node-exec">
+                    <div class="icon-box"><i class="ph-fill ph-pause-circle"></i></div>
+                    <span>Execution Controller</span>
+                </div>
+                <div class="pipeline-node" id="node-state">
+                    <div class="icon-box"><i class="ph-fill ph-database"></i></div>
+                    <span>State Manager</span>
+                </div>
+                <div class="pipeline-node" id="node-fastapi">
+                    <div class="icon-box"><i class="ph-fill ph-lightning"></i></div>
+                    <span>FastAPI</span>
+                </div>
+                <div class="pipeline-node" id="node-clients">
+                    <div class="icon-box"><i class="ph-fill ph-devices"></i></div>
+                    <span>Clients</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lower 3-Column Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[600px]">
+            
+            <!-- Column 1: Live Runtime Stream -->
+            <section class="bg-ig-panel border border-ig-border rounded flex flex-col overflow-hidden">
+                <div class="px-5 py-4 border-b border-ig-border flex justify-between items-center bg-ig-secondary">
+                    <h2 class="text-sm font-bold text-ig-textBase uppercase tracking-widest">Live Runtime Stream</h2>
+                    <div class="w-2.5 h-2.5 rounded-full bg-ig-primary pulse"></div>
+                </div>
+                <div class="flex-1 bg-black p-5 overflow-y-auto font-mono text-[12px] leading-loose text-ig-textMuted" id="runtime-stream">
+                    <!-- Populated by JS -->
+                    <div class="text-ig-textMuted opacity-50">Monitoring Runtime... Waiting for AI agents.</div>
+                </div>
+            </section>
+
+            <!-- Column 2: Incident Timeline -->
+            <section class="bg-ig-panel border border-ig-border rounded flex flex-col overflow-hidden">
+                <div class="px-5 py-4 border-b border-ig-border bg-ig-secondary">
+                    <h2 class="text-sm font-bold text-ig-textBase uppercase tracking-widest">Incident Timeline</h2>
+                </div>
+                <div class="flex-1 overflow-y-auto p-3" id="incident-timeline">
+                    <!-- Populated by JS -->
+                    <div class="p-6 text-sm font-bold text-ig-textMuted text-center mt-12 opacity-50">Monitoring...<br><br>Waiting for Runtime Events...</div>
+                </div>
+            </section>
+
+            <!-- Column 3: Rich Threat Detail -->
+            <section id="threat-panel" class="bg-ig-panel border border-ig-border rounded flex flex-col overflow-hidden opacity-50 pointer-events-none transition-all duration-300">
+                <div class="px-5 py-4 border-b border-ig-danger bg-[#2A0810] flex justify-between items-center">
+                    <h2 class="text-sm font-bold text-ig-danger uppercase tracking-widest">Threat Detected</h2>
+                    <span id="detail-exec-state" class="text-xs bg-ig-danger text-white px-3 py-1 rounded font-bold uppercase tracking-wider">PAUSED - Waiting Admin</span>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-5 flex flex-col gap-5">
+                    
+                    <!-- Context KV -->
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div class="text-ig-textMuted font-mono">Agent ID</div>
+                        <div class="font-mono text-right" id="detail-agent">--</div>
+                        
+                        <div class="text-ig-textMuted font-mono">Method</div>
+                        <div class="font-mono text-right text-ig-blue font-bold" id="detail-method">--</div>
+                        
+                        <div class="text-ig-textMuted font-mono">Matched Rule</div>
+                        <div class="font-mono text-right text-ig-warning font-bold" id="detail-rule">--</div>
+                        
+                        <div class="text-ig-textMuted font-mono">Command</div>
+                        <div class="font-mono text-right text-ig-danger font-bold" id="detail-command">--</div>
+
+                        <div class="text-ig-textMuted font-mono">Severity</div>
+                        <div class="font-bold text-right text-ig-danger" id="detail-severity">--</div>
+                    </div>
+
+                    <!-- Monospace Payload -->
+                    <div class="bg-black border border-ig-border p-4 rounded text-xs font-mono whitespace-pre-wrap overflow-auto shadow-inner min-h-[150px] max-h-[300px] shrink-0" id="detail-payload">
+                        {}
+                    </div>
+
+                    <!-- Risk Assessment -->
+                    <div class="border-l-4 border-ig-danger pl-4 py-1">
+                        <h3 class="text-xs text-ig-danger font-bold uppercase tracking-widest mb-1.5">Risk Assessment</h3>
+                        <p class="text-sm font-bold text-white" id="detail-impact">--</p>
+                        <p class="text-xs text-ig-textMuted mt-1 font-bold uppercase tracking-wider">Action Required: <span class="text-white">YES</span></p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col gap-3 mt-auto pt-4">
+                        <button id="btn-quarantine" class="w-full py-4 bg-ig-danger hover:bg-ig-dangerHover text-white text-sm font-bold rounded transition-colors uppercase tracking-widest shadow-lg">
+                            <i class="ph-bold ph-skull mr-2 text-lg align-middle"></i>Quarantine Agent
+                        </button>
+                        <button id="btn-block" class="w-full py-3 bg-ig-warning hover:bg-ig-warningHover text-black text-sm font-bold rounded transition-colors uppercase tracking-widest shadow-md">
+                            <i class="ph-bold ph-prohibit mr-2 text-lg align-middle"></i>Block Command Only
+                        </button>
+                        <button id="btn-allow" class="w-full py-3 border border-ig-primary text-ig-primary hover:bg-ig-primary hover:text-black text-sm font-bold rounded transition-colors uppercase tracking-widest">
+                            <i class="ph-bold ph-check mr-2 text-lg align-middle"></i>Allow Cautiously
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Enterprise Footer -->
+    <footer class="bg-ig-panel border-t border-ig-border py-3 px-8 flex justify-between items-center text-[11px] font-mono font-bold text-ig-textMuted uppercase tracking-widest">
+        <div class="flex items-center gap-8">
+            <span class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-ig-primary text-sm"></i> Backend Healthy</span>
+            <span class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-ig-primary text-sm"></i> Proxy Connected</span>
+            <span class="flex items-center gap-2"><i class="ph-fill ph-check-circle text-ig-primary text-sm"></i> Tunnel Online</span>
+        </div>
+        <div class="flex items-center gap-8">
+            <span id="footer-sync">Last Sync: --</span>
+            <span class="text-ig-primary"><i class="ph-fill ph-activity mr-1 text-sm align-middle"></i> Heartbeat: 2s</span>
+            <span>Version v2.0</span>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

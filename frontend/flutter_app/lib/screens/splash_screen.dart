@@ -84,21 +84,8 @@ class _SplashScreenState extends State<SplashScreen>
       backgroundColor: const Color(0xFF030A14), // Deep dark tech background
       body: Stack(
         children: [
-          // Optional Background image (cityscape/globe) if the user provides it
-          // Otherwise, we just use the dark background color.
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.3,
-              child: Image.asset(
-                'assets/splash screen.png',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    const SizedBox.shrink(), // Fallback if no bg image
-              ),
-            ),
-          ),
-
-          // Main Content
+          // We removed the 'splash screen.png' background because it contains the logo itself,
+          // which caused the logo to appear twice (once in the bg, once animated in the foreground).          // Main Content
           Positioned.fill(
             child: FadeTransition(
               opacity: _fadeAnimation,

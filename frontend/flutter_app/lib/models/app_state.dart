@@ -85,6 +85,8 @@ class AppStateModel {
   final List<IncidentModel> activeThreats;
   final List<IncidentModel> resolvedThreats;
   final List<LogEntryModel> recentLogs;
+  final int totalPayloads;
+  final int connectedClients;
 
   const AppStateModel({
     required this.systemStatus,
@@ -92,6 +94,8 @@ class AppStateModel {
     required this.activeThreats,
     required this.resolvedThreats,
     required this.recentLogs,
+    required this.totalPayloads,
+    required this.connectedClients,
   });
 
   factory AppStateModel.fromJson(Map<String, dynamic> json) {
@@ -115,6 +119,8 @@ class AppStateModel {
       activeThreats: parseIncidents(json['active_threats']),
       resolvedThreats: parseIncidents(json['resolved_threats']),
       recentLogs: parseLogs(json['recent_logs']),
+      totalPayloads: (json['total_payloads'] as num?)?.toInt() ?? 0,
+      connectedClients: (json['connected_clients'] as num?)?.toInt() ?? 0,
     );
   }
 }

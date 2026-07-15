@@ -54,3 +54,5 @@ class AppState:
     active_threats: List[Incident] = field(default_factory=list)
     resolved_threats: List[Incident] = field(default_factory=list)
     recent_logs: List[LogEntry] = field(default_factory=list)
+    total_payloads: int = 0
+    connected_clients: int = 0

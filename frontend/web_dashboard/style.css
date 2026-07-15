@@ -1,0 +1,159 @@
+body {
+    background-color: #050A10;
+    color: #F0F4F8;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #050A10;
+}
+::-webkit-scrollbar-thumb {
+    background: #1E2D40;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #7E8C9A;
+}
+
+/* Pulsing Badge Indicator */
+.pulse {
+    animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+    0% { box-shadow: 0 0 0 0 rgba(0, 216, 86, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(0, 216, 86, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 216, 86, 0); }
+}
+
+/* Red Pulse for Threats */
+.pulse-danger {
+    animation: pulse-danger-animation 2s infinite;
+}
+
+@keyframes pulse-danger-animation {
+    0% { box-shadow: 0 0 0 0 rgba(255, 42, 77, 0.5); }
+    70% { box-shadow: 0 0 0 8px rgba(255, 42, 77, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 42, 77, 0); }
+}
+
+/* Pipeline Nodes */
+.pipeline-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: #0B131E;
+    padding: 0 0.5rem;
+    z-index: 10;
+    transition: all 0.5s ease;
+}
+
+.pipeline-node .icon-box {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+    border: 2px solid #1E2D40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #111E2E;
+    color: #7E8C9A;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.pipeline-node span {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #7E8C9A;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: color 0.3s ease;
+}
+
+/* Active Node Pulse (The currently processing node) */
+.node-processing .icon-box {
+    border-color: #00D856;
+    color: #00D856;
+    background-color: rgba(0, 216, 86, 0.1);
+    box-shadow: 0 0 15px rgba(0, 216, 86, 0.4);
+    animation: pulse-animation 2s infinite;
+}
+.node-processing span {
+    color: #00D856;
+}
+
+/* Secure Pipeline Styles (Green) */
+.pipeline-node.active .icon-box {
+    border-color: #00D856;
+    color: #00D856;
+}
+.pipeline-node.active span {
+    color: #00D856;
+}
+
+/* Threat Pipeline Styles (Red) */
+.pipeline-node.threat .icon-box {
+    border-color: #FF2A4D;
+    color: #FF2A4D;
+    background-color: rgba(255, 42, 77, 0.1);
+    box-shadow: 0 0 15px rgba(255, 42, 77, 0.6);
+    animation: pulse-danger-animation 2s infinite;
+}
+.pipeline-node.threat span {
+    color: #FF2A4D;
+}
+
+/* Moving Packet Animation */
+.packet-moving {
+    animation: movePacket 4s linear infinite;
+}
+
+@keyframes movePacket {
+    0% { left: 0%; opacity: 0; }
+    5% { opacity: 1; }
+    95% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+}
+
+/* Packet Halted */
+.packet-halted {
+    left: 55.5%; /* Position of Execution Controller */
+    background-color: #FF2A4D !important;
+    box-shadow: 0 0 12px 4px rgba(255, 42, 77, 0.8) !important;
+    animation: pulse-danger-animation 1s infinite;
+}
+
+/* Global Red Alert Glow */
+.red-alert-mode {
+    background-color: #1A050A !important;
+}
+.red-alert-header {
+    background-color: #2A0810 !important;
+    border-bottom-color: #FF2A4D !important;
+}
+.red-alert-card {
+    border-color: #FF2A4D !important;
+    box-shadow: inset 0 0 20px rgba(255, 42, 77, 0.1);
+}
+
+/* Terminal Log Colors */
+.log-line {
+    margin-bottom: 0.5rem;
+}
+.log-info { color: #0088FF; font-weight: bold; }
+.log-success { color: #00D856; font-weight: bold; }
+.log-warning { color: #FF9900; font-weight: bold; }
+.log-error { color: #FF2A4D; font-weight: bold; }
+.log-admin { color: #A855F7; font-weight: bold; }
+
+/* JSON Syntax Highlighting */
+.json-key { color: #A855F7; }
+.json-string { color: #00D856; }
+.json-number { color: #FF9900; }
+.json-boolean { color: #0088FF; }

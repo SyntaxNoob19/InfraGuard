@@ -6,6 +6,7 @@ import '../theme/app_theme.dart';
 import '../widgets/connection_badge.dart';
 import '../widgets/monitoring_view.dart';
 import '../widgets/threat_view.dart';
+import 'settings_screen.dart';
 
 /// The single root screen of InfraGuard.
 /// Drives the four application states from live provider data.
@@ -63,11 +64,23 @@ class HomeScreen extends StatelessWidget {
       ),
       actions: [
         Consumer<ThreatProvider>(
-          builder: (_, p, __) => Padding(
-            padding: const EdgeInsets.only(right: AppTheme.pad),
-            child: ConnectionBadge(status: p.connectionStatus),
+          builder: (_, provider, __) => Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: ConnectionBadge(
+              status: provider.connectionStatus,
+              clients: provider.appState?.connectedClients ?? 0,
+            ),
           ),
         ),
+        IconButton(
+          icon: const Icon(Icons.settings, color: AppTheme.primaryText),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            );
+          },
+        ),
+        const SizedBox(width: 8),
       ],
     );
   }

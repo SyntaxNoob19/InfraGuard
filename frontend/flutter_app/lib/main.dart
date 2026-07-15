@@ -4,10 +4,12 @@ import 'providers/threat_provider.dart';
 import 'screens/splash_screen.dart';
 import 'services/background_service.dart';
 import 'services/notification_service.dart';
+import 'services/settings_service.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SettingsService.init();
   await NotificationService().init();
   await initializeBackgroundService();
   runApp(const InfraGuardApp());

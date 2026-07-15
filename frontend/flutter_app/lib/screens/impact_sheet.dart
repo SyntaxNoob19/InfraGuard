@@ -61,10 +61,10 @@ class ImpactSheet extends StatelessWidget {
                 const SizedBox(width: 10),
                 const Expanded(
                   child: Text(
-                    'Impact Analysis',
+                    'Predicted Impact',
                     style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                       color: AppTheme.primaryText,
                     ),
                   ),
