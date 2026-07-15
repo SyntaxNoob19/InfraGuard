@@ -4,13 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../models/app_state.dart';
 import '../services/api_service.dart';
 import '../services/notification_service.dart';
-
-/// Describes the live connection state shown in the UI status bar.
-enum ConnectionStatus {
-  loading,   // First fetch not yet complete
-  connected, // WebSocket connected
-  offline,   // WebSocket disconnected
-}
+import '../models/connection_status.dart';
 
 /// Provides application state and resolves incidents.
 /// Listens to the backend via WebSockets.

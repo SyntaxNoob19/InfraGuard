@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../models/connection_status.dart';
 import '../providers/threat_provider.dart';
 
 class NotificationService {

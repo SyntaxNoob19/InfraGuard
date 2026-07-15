@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../providers/threat_provider.dart';
+import '../models/connection_status.dart';
 import '../theme/app_theme.dart';
 
 /// Animated connection status chip for the AppBar.

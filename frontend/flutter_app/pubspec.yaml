@@ -38,7 +38,7 @@ dependencies:
   http: ^1.6.0
   google_fonts: ^6.2.1
   flutter_local_notifications: ^20.1.0
-  flutter_background_service: ^5.1.0
+
   web_socket_channel: ^3.0.3
   shared_preferences: ^2.5.5
 
