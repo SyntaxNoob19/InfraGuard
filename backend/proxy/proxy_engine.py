@@ -9,6 +9,10 @@ import sys
 import os
 import json
 import argparse
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger('ProxyEngine')
 import uvicorn
 
 import detector
@@ -29,14 +33,14 @@ async def run_proxy(agent_filename: str, state_manager: StateManager, execution_
     agent_path = os.path.join(base_dir, "agents", agent_filename)
     
     if not os.path.isfile(agent_path):
-        print(f"[Proxy Error] Agent file not found: {agent_path}", file=sys.stderr)
+        logger.error(f"[Proxy Error] Agent file not found: {agent_path}")
         return
 
-    print("====================================")
-    print("InfraGuard Runtime Started")
-    print("Monitoring Agent:")
-    print(agent_filename)
-    print("====================================", flush=True)
+    logger.info("====================================")
+    logger.info("InfraGuard Runtime Started")
+    logger.info("Monitoring Agent:")
+    logger.info(agent_filename)
+    logger.info("====================================")
     state_manager.add_log(LogType.INFO, f"Agent Started: {agent_filename}")
     state_manager.update_active_agents(1)
     
@@ -47,17 +51,17 @@ async def run_proxy(agent_filename: str, state_manager: StateManager, execution_
             stderr=asyncio.subprocess.PIPE
         )
     except FileNotFoundError:
-        print("[Proxy Error] Python executable not found.", file=sys.stderr)
+        logger.error("[Proxy Error] Python executable not found.")
         state_manager.add_log(LogType.ERROR, "Python executable not found")
         state_manager.update_active_agents(-1)
         return
     except PermissionError:
-        print(f"[Proxy Error] Permission denied executing {agent_path}.", file=sys.stderr)
+        logger.error(f"[Proxy Error] Permission denied executing {agent_path}.")
         state_manager.add_log(LogType.ERROR, f"Permission denied executing {agent_filename}")
         state_manager.update_active_agents(-1)
         return
     except Exception as e:
-        print(f"[Proxy Error] Failed to launch subprocess: {e}", file=sys.stderr)
+        logger.error(f"[Proxy Error] Failed to launch subprocess: {e}")
         state_manager.add_log(LogType.ERROR, f"Failed to launch subprocess: {e}")
         state_manager.update_active_agents(-1)
         return
@@ -86,28 +90,28 @@ async def run_proxy(agent_filename: str, state_manager: StateManager, execution_
                         payload = json.loads(json_buffer)
                         is_collecting_json = False
                         
-                        print("\nPayload Received\n↓")
+                        logger.info("\nPayload Received\n↓")
                         
                         # Schema Validation
                         required_fields = {"jsonrpc", "id", "agent_id", "method", "params", "timestamp"}
                         if not isinstance(payload, dict) or not required_fields.issubset(payload.keys()):
-                            print("Invalid JSON-RPC payload")
+                            logger.info("Invalid JSON-RPC payload")
                             continue
                             
-                        print("JSON Schema Validated\n↓")
+                        logger.info("JSON Schema Validated\n↓")
                         state_manager.increment_payload_count()
                         state_manager.add_log(LogType.INFO, "Payload Parsed")
                             
                         # Threat Detection
-                        print("Threat Analysis Started\n↓")
+                        logger.info("Threat Analysis Started\n↓")
                         result = detector.analyze_payload(payload)
                         agent_id = payload.get("agent_id", "Unknown")
                         method = payload.get("method", "Unknown")
                         
                         if result.is_threat:
                             had_incident = True
-                            print("Threat Detected")
-                            print(f"[THREAT DETECTED] Severity: {result.severity.name} | Rule: {result.matched_rule} | Reason: {result.reason}")
+                            logger.info("Threat Detected")
+                            logger.info(f"[THREAT DETECTED] Severity: {result.severity.name} | Rule: {result.matched_rule} | Reason: {result.reason}")
                             state_manager.add_log(LogType.WARNING, f"Threat Detected: {result.matched_rule}")
                             
                             incident = state_manager.create_incident(
@@ -121,52 +125,52 @@ async def run_proxy(agent_filename: str, state_manager: StateManager, execution_
                             
                             # Freeze Execution
                             context = execution_controller.create_execution_context(incident.incident_id, process)
-                            print("====================================")
-                            print("Incident Created")
-                            print(f"ID       : {incident.incident_id}")
-                            print(f"Severity : {incident.severity.name}")
-                            print(f"Agent    : {incident.agent_id}")
-                            print(f"Rule     : {incident.matched_rule}")
-                            print("====================================")
-                            print("Waiting For Admin...")
+                            logger.info("====================================")
+                            logger.info("Incident Created")
+                            logger.info(f"ID       : {incident.incident_id}")
+                            logger.info(f"Severity : {incident.severity.name}")
+                            logger.info(f"Agent    : {incident.agent_id}")
+                            logger.info(f"Rule     : {incident.matched_rule}")
+                            logger.info("====================================")
+                            logger.info("Waiting For Admin...")
                             state_manager.add_log(LogType.INFO, "Waiting For Admin")
                             
                             await execution_controller.pause(incident.incident_id)
                             
                             action = context.resolution_action
                             if action == "ALLOW":
-                                print(f"Admin Action: ALLOW\nExecution resumed.\nAgent completed successfully.")
+                                logger.info(f"Admin Action: ALLOW\nExecution resumed.\nAgent completed successfully.")
                             elif action == "BLOCK" or action == "BLOCK_COMMAND":
-                                print(f"Admin Action: BLOCK_COMMAND\nMalicious payload discarded.\nExecution resumed.\nAgent completed successfully.")
+                                logger.info(f"Admin Action: BLOCK_COMMAND\nMalicious payload discarded.\nExecution resumed.\nAgent completed successfully.")
                             elif action == "QUARANTINE":
                                 was_quarantined = True
-                                print(f"Admin Action: QUARANTINE\nSubprocess terminated.\nAgent forcefully quarantined.")
+                                logger.info(f"Admin Action: QUARANTINE\nSubprocess terminated.\nAgent forcefully quarantined.")
                             else:
-                                print(f"Execution Resumed with action: {action}")
+                                logger.info(f"Execution Resumed with action: {action}")
                             
                             execution_controller.remove(incident.incident_id)
                             
-                            print("====================================")
-                            print("Incident Closed")
-                            print(f"System Status : {state_manager.get_state().system_status.name}")
-                            print("====================================")
+                            logger.info("====================================")
+                            logger.info("Incident Closed")
+                            logger.info(f"System Status : {state_manager.get_state().system_status.name}")
+                            logger.info("====================================")
                         else:
-                            print(f"[SAFE] Method executed safely: {method}")
+                            logger.info(f"[SAFE] Method executed safely: {method}")
                             
                     except json.JSONDecodeError:
                         # Wait for the rest of the JSON string
                         pass
                         
     except Exception as e:
-        print(f"[Proxy Error] Error while reading stdout: {e}", file=sys.stderr)
+        logger.error(f"[Proxy Error] Error while reading stdout: {e}")
         state_manager.add_log(LogType.ERROR, f"Error reading stdout: {e}")
     
     return_code = await process.wait()
     if not had_incident:
         if return_code != 0:
-            print(f"[Proxy Warning] Agent exited with return code: {return_code}", file=sys.stderr)
+            logger.error(f"[Proxy Warning] Agent exited with return code: {return_code}")
         else:
-            print("Agent exited successfully.")
+            logger.info("Agent exited successfully.")
         
     state_manager.add_log(LogType.INFO, f"Agent Finished: {agent_filename}")
     state_manager.update_active_agents(-1)
@@ -206,7 +210,7 @@ def main() -> None:
     try:
         asyncio.run(run_everything(args.agent, state_manager, execution_controller))
     except KeyboardInterrupt:
-        print("\n[Proxy] Shutting down due to KeyboardInterrupt.", file=sys.stderr)
+        logger.error("\n[Proxy] Shutting down due to KeyboardInterrupt.")
 
 if __name__ == "__main__":
     main()

@@ -7,6 +7,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 import asyncio
+import os
 from pydantic import BaseModel
 
 from backend.proxy.models import LogType
@@ -18,7 +19,7 @@ class ResolveRequest(BaseModel):
     action: str
 
 security = HTTPBearer()
-API_KEY = "YOUR_API_KEY_HERE"
+API_KEY = os.getenv("INFRAGUARD_API_KEY", "YOUR_API_KEY_HERE")
 
 def verify_token(credentials: HTTPAuthorizationCredentials = Security(security)) -> str:
     if credentials.credentials != API_KEY:

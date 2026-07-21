@@ -249,14 +249,36 @@ A security tool is only as good as its own defenses. MVP 2 will implement safegu
 - **Mutual TLS (mTLS):** Enforcing mTLS between the AI Agents and the Proxy to ensure only authorized agents can submit payloads to the engine.
 
 
-## License
-This project is licensed under the MIT License.
+## Copyright
+
+© 2026 Riya Maity. All rights reserved.
+
+This repository is published for portfolio, educational, and demonstration purposes only.
+
+No permission is granted to copy, modify, redistribute, or use this source code without prior written permission from the author.
 
 ## Acknowledgements
 - [FastAPI](https://fastapi.tiangolo.com/)
 - [Flutter](https://flutter.dev/)
 - [WebSocket](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
 - [Python](https://www.python.org/)
+
+## References & Research
+
+1. **Building an AI Firewall & Securing MCP**
+   - **Source:** Costa Security Blog
+   - **Key Insight:** Provided architectural foundations for safely intercepting Model Context Protocol (MCP) payloads and designing middleware security.
+   - [Read Article](https://blog.costa.security/building-an-ai-firewall-three-things-i-learned-while-securing-mcp-f9a19b910a02)
+
+2. **The State of Secrets Sprawl 2026**
+   - **Source:** GitGuardian
+   - **Key Insight:** Validates our "Fatal Gap" argument—traditional API keys and local IAM roles are increasingly compromised, proving the critical need for our Out-of-Band Mobile Auth.
+   - [Read Report](https://blog.gitguardian.com/the-state-of-secrets-sprawl-2026/)
+
+3. **MCP Security Statistics 2026 Report**
+   - **Source:** Practical DevSecOps
+   - **Key Insight:** Industry statistics highlighting the rapid adoption of AI agents and the escalating threat of unauthorized execution via legitimate permissions.
+   - [Read Report](https://www.practical-devsecops.com/mcp-security-statistics-2026-report/?srsltid=AfmBOoqXcU1LkesK5K-ezZuswru9zRYWbB--nhw9ywtO3oqTqJAamdv2)
 
 ---
 *Securing the Autonomous Enterprise.*

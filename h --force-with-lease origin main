@@ -1,0 +1,11 @@
+* [33m6c5e0b4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;33mtag: [m[1;33mmvp1[m[33m)[m feat: MVP1 - Initial working InfraGuard prototype
+* [33mf7364ab[m release(v3.0.0): production-ready enterprise AI runtime security platform
+[31m|[m * [33m55ab4f9[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Update README.md
+[31m|[m * [33mc1e5055[m Remove stars badge from README
+[31m|[m[31m/[m  
+* [33m5a68162[m[33m ([m[1;33mtag: [m[1;33mv3.0.0[m[33m)[m release(v3.0.0): production-ready enterprise AI runtime security platform
+* [33md03485c[m feat: final synchronized mobile and web dashboard v2
+* [33m31669ff[m  bugs improved
+* [33m1f34f93[m feat: InfraGuard Enterprise  - Real-time WebSocket, Mobile Admin, SOC Dashboard
+* [33me635697[m[33m ([m[1;33mtag: [m[1;33mv2.0[m[33m)[m feat: release InfraGuard v2.0 enterprise mobile console
+* [33m657795d[m[33m ([m[1;33mtag: [m[1;33mv1.0-MVP[m[33m)[m Release: InfraGuard v1.0 MVP
