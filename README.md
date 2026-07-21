@@ -101,23 +101,39 @@ InfraGuard mitigates this massive attack surface by intercepting, evaluating, an
 
 </details>
 
-## Architecture
+## 🏗️ System Architecture
+
+InfraGuard follows a **Zero-Trust middleware architecture** that sits transparently between AI agents and the underlying MCP server. Every JSON-RPC tool invocation is intercepted, analyzed, and validated before it reaches protected infrastructure.
+
+The proxy performs **real-time threat detection**, **policy enforcement**, and **runtime monitoring** while maintaining execution state. When malicious or suspicious commands are detected, execution is paused and the incident is forwarded to the FastAPI backend, which synchronizes state across both the **Flutter Admin App** and the **Enterprise SOC Dashboard** via WebSockets, enabling administrators to allow, block, or quarantine requests before execution continues.
 
 <p align="center">
-  <img src="docs/architecture/01_system_architecture.png" alt="System Architecture">
+  <img src="docs/architecture/01_system_architecture.png" alt="InfraGuard System Architecture" width="900">
 </p>
+
+### Component Pipeline
 
 ```mermaid
 flowchart TD
-    Agent[AI Agent] -->|JSON-RPC| Proxy[Zero-Trust Proxy]
-    Proxy --> Parser[JSON-RPC Parser]
-    Parser --> Engine[Threat Detection Engine]
-    Engine --> Controller[Execution Controller]
-    Controller --> StateManager[State Manager]
-    StateManager --> API[FastAPI Backend]
-    
-    API -->|WebSocket Broadcast| Flutter[Flutter App]
-    API -->|WebSocket Broadcast| SOC[SOC Dashboard]
+    Agent[AI Agent]
+    Proxy[Zero-Trust Proxy]
+    Parser[JSON-RPC Parser]
+    Engine[Threat Detection Engine]
+    Controller[Execution Controller]
+    State[State Manager]
+    API[FastAPI Backend]
+    Flutter[Flutter Admin App]
+    SOC[Enterprise SOC Dashboard]
+
+    Agent -->|JSON-RPC| Proxy
+    Proxy --> Parser
+    Parser --> Engine
+    Engine --> Controller
+    Controller --> State
+    State --> API
+
+    API -->|WebSocket Broadcast| Flutter
+    API -->|WebSocket Broadcast| SOC
 ```
 
 ## Security Workflow
@@ -189,7 +205,7 @@ cd backend
 python simulate_agent.py
 ```
 
-**Terminal 2: Secure Tunneling (Optional)**
+**Terminal 2: Secure Tunneling**
 ```bash
 # Expose the local backend to the internet for remote Flutter app connectivity
 ngrok http 8000
@@ -216,17 +232,35 @@ Follow these steps to demonstrate the full power of InfraGuard:
 
 ## Screenshots
 
-| Mobile Splash | Flutter Dashboard | SOC Dashboard |
-| :---: | :---: | :---: |
-| <img src="docs/screenshots/app/01_mobile_splash_screen.jpeg" width="250"> | <img src="docs/screenshots/app/02_mobile_system_secure.jpeg" width="250"> | <img src="docs/screenshots/web_dashboard/08_web_dashboard_idle.png" width="400"> |
+## Flutter Admin App
 
-| Threat Detection | Payload Viewer | Runtime Stream |
+| Splash Screen | System Secure | Notifications |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/app/04_mobile_threat_detection.jpeg" width="250"> | <img src="docs/screenshots/app/05_mobile_payload_viewer.jpeg" width="250"> | <img src="docs/screenshots/web_dashboard/10_web_dashboard_threat_detected.png" width="400"> |
+| <img src="docs/screenshots/app/01_mobile_splash_screen.jpeg" width="220"> | <img src="docs/screenshots/app/02_mobile_system_secure.jpeg" width="220"> | <img src="docs/screenshots/app/03_mobile_notifications.png" width="220"> |
 
-| Incident Timeline | Admin Decision | Quarantined |
+| Threat Detection | Payload Viewer | Impact Analysis |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/app/03_mobile_notifications.png" width="250"> | <img src="docs/screenshots/web_dashboard/11_web_dashboard_admin_decision.png" width="400"> | <img src="docs/screenshots/web_dashboard/12_web_dashboard_quarantine_success.png" width="400"> |
+| <img src="docs/screenshots/app/04_mobile_threat_detection.jpeg" width="220"> | <img src="docs/screenshots/app/05_mobile_payload_viewer.jpeg" width="220"> | <img src="docs/screenshots/app/06_mobile_impact_analysis.jpeg" width="220"> |
+
+| Command Blocked | Proxy Offline |
+| :---: | :---: |
+| <img src="docs/screenshots/app/07_mobile_command_blocked.jpeg" width="220"> | <img src="docs/screenshots/app/08_mobile_proxy_offline.jpeg" width="220"> |
+
+---
+
+## Enterprise SOC Dashboard
+
+| Idle State | Safe Execution |
+| :---: | :---: |
+| <img src="docs/screenshots/web_dashboard/08_web_dashboard_idle.png" width="420"> | <img src="docs/screenshots/web_dashboard/09_web_dashboard_safe_execution.png" width="420"> |
+
+| Threat Detected | Admin Decision |
+| :---: | :---: |
+| <img src="docs/screenshots/web_dashboard/10_web_dashboard_threat_detected.png" width="420"> | <img src="docs/screenshots/web_dashboard/11_web_dashboard_admin_decision.png" width="420"> |
+
+| Quarantine Successful |
+| :---: |
+| <img src="docs/screenshots/web_dashboard/12_web_dashboard_quarantine_success.png" width="700"> |
 
 ## Roadmap & Limitations (Path to MVP 2)
 
