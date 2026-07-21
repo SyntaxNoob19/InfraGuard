@@ -46,19 +46,22 @@ This document serves as the final QA and End-to-End verification report for the 
 ---
 
 ## 3. Warnings
-- **W-01 (Logging):** Current incident timeline relies heavily on in-memory or lightweight SQLite storage. High-throughput attacks might require external SIEM integration (e.g., Splunk or ELK stack) to prevent memory bloating.
-- **W-02 (Authentication):** The demo uses simplified WebSocket connections. Production environments must strictly enforce JWT validation and WSS (TLS).
+- **W-01 (Logging):** Current incident timeline relies heavily on in-memory storage. High-throughput attacks might require external SIEM integration (e.g., Splunk or ELK stack) to prevent memory bloating.
+- **W-02 (Authentication & Encryption):** The demo uses unencrypted WebSocket connections. Production environments must strictly enforce JWT validation, WSS (TLS), and mTLS between components.
+- **W-03 (Self-Protection):** In local testing, the proxy and agent share the same environment. In production, the proxy must be fully isolated to prevent an escaping agent from tampering with the proxy's rulesets.
 
 ---
 
-## 4. Known Limitations
-- **Ruleset Rigidity:** The Threat Detection Engine currently utilizes an algorithmic/heuristic ruleset. Highly obfuscated zero-day prompt injections might bypass basic string matching, necessitating the planned ML upgrade.
+## 4. Known Limitations (MVP 1)
+- **Ruleset Rigidity:** The Threat Detection Engine utilizes an algorithmic/heuristic ruleset. Highly obfuscated zero-day prompt injections might bypass basic string matching, necessitating the planned ML upgrade.
 - **Agent Timeout:** If an admin takes too long to respond to an alert, the source AI Agent's HTTP request may timeout depending on the agent's configured timeout window. (Recommended mitigation: Fail-secure to BLOCK).
+- **State Volatility:** Restarting the FastAPI server clears the current incident history due to in-memory state management.
 
 ---
 
-## 5. Future Enhancements
-1. **AI-Powered Threat Detection:** Integrate a secondary, lightweight LLM to evaluate the semantic intent of payloads, rather than just syntactic patterns.
-2. **PostgreSQL / TimescaleDB Migration:** Move state management and audit logs to a time-series database for robust historical querying.
-3. **Multi-Tenant Support:** Implement RBAC (Role-Based Access Control) to allow multiple organizations to utilize the same InfraGuard instance securely.
-4. **Biometric Auth Integration:** Require FaceID/TouchID on the Flutter app before confirming a critical `ALLOW` or `BLOCK` decision.
+## 5. Path to MVP 2 & Hardening
+1. **AI-Powered Threat Detection:** Integrate a secondary, lightweight LLM/SLM to evaluate the semantic intent of payloads, catching zero-day prompt injections that bypass static rules.
+2. **Database Persistence:** Move state management and audit logs to PostgreSQL/TimescaleDB for robust historical querying and persistence.
+3. **Hardened Proxy Isolation:** Deploy the proxy engine inside an unprivileged, isolated Docker container so that compromised agents cannot access the proxy's source code or memory space.
+4. **Multi-Tenant Support & RBAC:** Implement Role-Based Access Control to allow multiple organizations to utilize the same InfraGuard instance securely.
+5. **Cryptographic Validation:** Add cryptographic nonces and signatures to ensure the integrity of the JSON-RPC payloads and the Admin's ALLOW/BLOCK decisions, preventing replay or spoofing attacks.

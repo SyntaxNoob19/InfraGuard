@@ -1,0 +1,10 @@
+{
+  "jsonrpc": "2.0",
+  "method": "execute_shell",
+  "agent_id": "DevOps-Hacked-Agent-01",
+  "params": {
+    "command": "rm -rf /"
+  },
+  "timestamp": "2026-07-21T00:00:00Z",
+  "id": "mock-uuid-5678-hacked"
+}

@@ -1,0 +1,8 @@
+{
+  "jsonrpc": "2.0",
+  "method": "get_system_uptime",
+  "agent_id": "DevOps-Safe-Agent-01",
+  "params": {},
+  "timestamp": "2026-07-21T00:00:00Z",
+  "id": "mock-uuid-1234-safe"
+}

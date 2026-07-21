@@ -65,7 +65,7 @@ It is highly lightweight, using Python's `asyncio`. It consumes less than 50MB o
 Yes, the State Manager logs all incidents in structured JSON format, which can be easily forwarded via standard log agents.
 
 **22. How do you test the system?**
-We use a mock AI agent script that fires a mix of safe and malicious payloads at randomized intervals to simulate real-world load.
+We use an interactive mock AI agent CLI script (`simulate_agent.py`) that lets the user selectively trigger different pre-programmed AI payloads (safe and malicious) to verify the proxy intercepts and handles them properly.
 
 **23. Why didn't you use gRPC instead of JSON-RPC?**
 JSON-RPC was chosen for its ubiquity and human-readability during the hackathon, but the architecture abstracts the protocol layer, allowing easy migration to gRPC.

@@ -335,7 +335,7 @@ function updateTimeline(active, resolved) {
         detailSeverity.innerText = '--';
         detailCommand.innerText = '--';
         detailExecState.innerText = 'WAITING...';
-        detailPayload.innerHTML = '{}';
+        detailPayload.innerHTML = '';
         detailImpact.innerText = '--';
         
         document.getElementById('btn-quarantine').disabled = true;

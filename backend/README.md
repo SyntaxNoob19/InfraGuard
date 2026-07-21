@@ -22,17 +22,18 @@ The backend is modularized into several core components:
 
 ```text
 backend/
-├── agents/               # AI Agent simulation scripts (e.g., simulate_agent.py)
-├── api/                  # FastAPI initialization, routing, and WebSocket logic
-│   ├── main.py           # Application entry point
-│   └── routes.py         # REST and WS endpoints
-├── proxy/                # Core Zero-Trust logic
-│   ├── engine.py         # Threat Detection Engine
-│   ├── controller.py     # Execution Controller
-│   ├── state.py          # State Manager
-│   └── parser.py         # JSON-RPC Parser
-├── requirements.txt      # Python dependencies
-└── README.md             # This documentation
+├── agents/                   # AI Agent simulation scripts (e.g., db_safe.py, devops_hacked.py)
+├── api/                      # FastAPI initialization, routing, and WebSocket logic
+│   └── main.py               # Application entry point & endpoints
+├── proxy/                    # Core Zero-Trust logic
+│   ├── proxy_engine.py       # Threat Detection Engine & Subprocess Interception
+│   ├── execution_controller.py # Execution Controller
+│   ├── state_manager.py      # State Manager
+│   ├── detector.py           # Threat Detection heuristics
+│   └── models.py             # Data classes and enums
+├── requirements.txt          # Python dependencies
+├── simulate_agent.py         # Interactive CLI to run agents via the proxy engine
+└── README.md                 # This documentation
 ```
 
 ## How to Run
@@ -48,19 +49,19 @@ backend/
    pip install -r requirements.txt
    ```
 
-3. **Start the FastAPI server:**
+3. **Start the Interactive Agent Simulator & Proxy Engine:**
+   *Note: The proxy engine automatically starts the FastAPI server on port 8000 internally. You do not need to run `uvicorn` separately.*
    ```bash
-   uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+   python simulate_agent.py
    ```
 
 ## API Endpoints
 
-- `POST /api/rpc`
-  - **Purpose:** Receives JSON-RPC payloads from AI Agents.
-  - **Action:** Triggers the proxy interception and threat detection workflow.
-- `POST /api/decision`
+- `GET /api/status`
+  - **Purpose:** Fetches the current system status and logs.
+- `POST /api/resolve`
   - **Purpose:** Receives human-in-the-loop decisions from Admin clients.
-  - **Payload:** `{ "payload_id": "...", "decision": "ALLOW" | "BLOCK" | "QUARANTINE" }`
+  - **Payload:** `{ "incident_id": "...", "action": "ALLOW" | "BLOCK" | "QUARANTINE" }`
 
 ## WebSocket Endpoint
 
@@ -70,11 +71,10 @@ backend/
 
 ## Agent Simulation
 
-To test the proxy, you can run the mock AI Agent script. This script fires a mixture of benign and malicious JSON-RPC payloads at random intervals.
+To test the proxy, you run the interactive simulator. This script allows you to choose between various mock AI agents (safe and hacked).
 
 ```bash
-# In a separate terminal session
-python agents/simulate_agent.py
+python simulate_agent.py
 ```
 
 ## Threat Detection Rules

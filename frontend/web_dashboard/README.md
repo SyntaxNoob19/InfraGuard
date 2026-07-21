@@ -102,8 +102,8 @@ The Enterprise SOC Dashboard is styled with modern CSS Grid and Flexbox. While i
 
 | Dashboard - Secure State | Dashboard - Threat Intercepted |
 | :---: | :---: |
-| *(Placeholder)* | *(Placeholder)* |
+| <img src="../../docs/screenshots/web_dashboard/08_web_dashboard_idle.png" width="400"> | <img src="../../docs/screenshots/web_dashboard/10_web_dashboard_threat_detected.png" width="400"> |
 
 | Payload Viewer | Runtime Stream |
 | :---: | :---: |
-| *(Placeholder)* | *(Placeholder)* |
+| <img src="../../docs/screenshots/web_dashboard/11_web_dashboard_admin_decision.png" width="400"> | <img src="../../docs/screenshots/web_dashboard/09_web_dashboard_safe_execution.png" width="400"> |

@@ -100,8 +100,8 @@ To connect to the FastAPI backend, you must configure the backend URL in the Set
 
 | Splash | Dashboard (Secure) | Dashboard (Threat) |
 | :---: | :---: | :---: |
-| *(Placeholder)* | *(Placeholder)* | *(Placeholder)* |
+| <img src="../../docs/screenshots/app/01_mobile_splash_screen.jpeg" width="250"> | <img src="../../docs/screenshots/app/02_mobile_system_secure.jpeg" width="250"> | <img src="../../docs/screenshots/app/04_mobile_threat_detection.jpeg" width="250"> |
 
-| Payload Viewer | Settings | Notifications |
+| Payload Viewer | Action Result | Notifications |
 | :---: | :---: | :---: |
-| *(Placeholder)* | *(Placeholder)* | *(Placeholder)* |
+| <img src="../../docs/screenshots/app/05_mobile_payload_viewer.jpeg" width="250"> | <img src="../../docs/screenshots/app/07_mobile_command_blocked.jpeg" width="250"> | <img src="../../docs/screenshots/app/03_mobile_notifications.png" width="250"> |

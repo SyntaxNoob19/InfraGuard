@@ -42,15 +42,32 @@
 
 InfraGuard enables system administrators to monitor, inspect, and control AI agent actions in real time through an **Enterprise SOC Dashboard** (Web) and a companion **Flutter Mobile Admin** application, bridging the gap between autonomous automation and secure human oversight.
 
-## Project Motivation
+## The Problem: AI Agents are a Security Blindspot
 
-Modern AI Agents can autonomously execute powerful tools such as:
-- Shell commands
-- Database queries
-- File system operations
-- Arbitrary API requests
+Modern AI Agents can autonomously execute powerful tools (shell commands, database queries, file operations). However, granting autonomous agents infrastructure access creates a massive attack surface. 
 
-If an agent is compromised through **prompt injection** or malicious instructions, it may perform destructive or unauthorized actions on your infrastructure. InfraGuard mitigates this massive attack surface by introducing a robust proxy layer that intercepts, evaluates, and optionally blocks these actions *before* execution.
+**The numbers prove it's a critical threat:**
+- **High Incident Rate:** 88% of companies using AI agents in production have experienced at least one security incident.
+- **The Perception Gap:** Despite this, 82% of those companies mistakenly believe their current security is sufficient.
+- **Catastrophic Costs:** The average cost of a single AI agent security incident is **$2.3M**, with real-world examples including $1-5M for accidental database deletions and $500K-$2M for credential leaks.
+- **Systematic Vulnerability:** Only 5% of companies have a systematic way to prevent or stop risky AI actions before they execute. 
+
+Recent high-profile attacks (e.g., CVE-2025-21852 in April 2026, where attackers hijacked AI coding assistants via hidden GitHub PR instructions) demonstrate that prompt injection is a reality. Current approaches like "monitoring logs" are too slow; by the time a threat is detected in logs (5-30 mins), the damage is already done.
+
+## The Solution: InfraGuard Zero-Trust Proxy
+
+If you're running AI agents with infrastructure access without a kill-switch, it's not a question of *if* you'll have an incident, but *when* and *how much it'll cost*.
+
+**InfraGuard** solves this by acting as a Zero-Trust interception layer. 
+- **Lightning Fast Interception:** We intercept payloads in < 100ms.
+- **Human-in-the-Loop:** Alerts are sent to a human admin via mobile push notification in < 2 seconds.
+- **Rapid Resolution:** Total time to stop damage is < 40 seconds (compared to 30-120 minutes with traditional logging).
+
+<p align="center">
+  <img src="docs/architecture/02_runtime_execution_flow.png" alt="InfraGuard Solution Flow">
+</p>
+
+InfraGuard mitigates this massive attack surface by intercepting, evaluating, and optionally blocking these actions *before* execution, ensuring you have the final say over what your AI agents deploy.
 
 ## Key Features
 
@@ -85,6 +102,10 @@ If an agent is compromised through **prompt injection** or malicious instruction
 </details>
 
 ## Architecture
+
+<p align="center">
+  <img src="docs/architecture/01_system_architecture.png" alt="System Architecture">
+</p>
 
 ```mermaid
 flowchart TD
@@ -161,19 +182,14 @@ cd ../web_dashboard
 
 To simulate a complete deployment, you will need multiple terminal sessions.
 
-**Terminal 1: FastAPI Backend**
-```bash
-cd backend
-uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-**Terminal 2: AI Agent (Proxy Client)**
+**Terminal 1: Proxy Engine & Backend Server**
+*(The proxy engine will automatically start the FastAPI server internally on port 8000)*
 ```bash
 cd backend
 python simulate_agent.py
 ```
 
-**Terminal 3: Secure Tunneling (Optional)**
+**Terminal 2: Secure Tunneling (Optional)**
 ```bash
 # Expose the local backend to the internet for remote Flutter app connectivity
 ngrok http 8000
@@ -200,33 +216,38 @@ Follow these steps to demonstrate the full power of InfraGuard:
 
 ## Screenshots
 
-| Splash Screen | Flutter Dashboard | SOC Dashboard |
+| Mobile Splash | Flutter Dashboard | SOC Dashboard |
 | :---: | :---: | :---: |
-| *(Placeholder)* | *(Placeholder)* | *(Placeholder)* |
+| <img src="docs/screenshots/app/01_mobile_splash_screen.jpeg" width="250"> | <img src="docs/screenshots/app/02_mobile_system_secure.jpeg" width="250"> | <img src="docs/screenshots/web_dashboard/08_web_dashboard_idle.png" width="400"> |
 
 | Threat Detection | Payload Viewer | Runtime Stream |
 | :---: | :---: | :---: |
-| *(Placeholder)* | *(Placeholder)* | *(Placeholder)* |
+| <img src="docs/screenshots/app/04_mobile_threat_detection.jpeg" width="250"> | <img src="docs/screenshots/app/05_mobile_payload_viewer.jpeg" width="250"> | <img src="docs/screenshots/web_dashboard/10_web_dashboard_threat_detected.png" width="400"> |
 
-| Incident Timeline | Architecture | |
+| Incident Timeline | Admin Decision | Quarantined |
 | :---: | :---: | :---: |
-| *(Placeholder)* | *(Placeholder)* | |
+| <img src="docs/screenshots/app/03_mobile_notifications.png" width="250"> | <img src="docs/screenshots/web_dashboard/11_web_dashboard_admin_decision.png" width="400"> | <img src="docs/screenshots/web_dashboard/12_web_dashboard_quarantine_success.png" width="400"> |
 
-## Roadmap & Limitations
+## Roadmap & Limitations (Path to MVP 2)
 
-### Future Roadmap
-- **Firebase Cloud Messaging:** Remote push notifications and background execution.
-- **Authentication:** Secure OAuth2/JWT integration for Admin apps.
-- **RBAC:** Role-Based Access Control for multi-admin teams.
-- **Historical Analytics:** Time-series DB integration for long-term audit logs.
-- **Cloud Deployment:** Dockerization and Kubernetes Support.
-- **Multi-Agent Runtime Protection:** Scalable proxy instances handling thousands of concurrent agents.
+### Known Limitations (MVP 1)
+- **Ruleset Rigidity:** The Threat Detection Engine currently relies on a rigid algorithmic ruleset optimized for speed. Highly sophisticated zero-day obfuscations might bypass basic string matching.
+- **In-Memory State:** The current state manager runs in-memory. If the FastAPI process restarts, the incident history is cleared.
+- **Unencrypted Local WebSockets:** The MVP relies on standard WebSockets without WSS/TLS for local development.
 
-### Known Limitations
-- The current Threat Detection Engine relies on a rigid algorithmic ruleset optimized for speed (MVP constraints). Highly sophisticated zero-day obfuscations will benefit from the planned ML upgrade.
+### MVP 2: Future Roadmap & Hardening
+To transition from a functional prototype to a production-grade enterprise product, MVP 2 will focus on ML integration and self-protection.
 
-## Team
-- **[Your Name]** - *Lead Engineer / Architect*
+- **AI-Powered Threat Detection:** Integrating a fast, specialized small language model (SLM) to evaluate the *semantic intent* of payloads rather than relying solely on syntactical patterns.
+- **Database Persistence:** Migrating state management to PostgreSQL/TimescaleDB for robust historical querying and long-term audit logs.
+- **Authentication & RBAC:** Enforcing strict OAuth2/JWT validation for the API and WebSockets, plus Role-Based Access Control for multi-admin teams.
+
+### Securing the Security Tool (Self-Protection)
+A security tool is only as good as its own defenses. MVP 2 will implement safeguards to ensure InfraGuard itself cannot be compromised:
+- **Proxy Isolation:** The proxy will run in a hardened, isolated Docker container or separate VM, stripped of all unnecessary privileges, preventing an escaping AI agent from tampering with the proxy's own memory or binaries.
+- **Cryptographic Nonces:** Implementing strict nonce validation to prevent replay attacks on the `/api/resolve` endpoints.
+- **Mutual TLS (mTLS):** Enforcing mTLS between the AI Agents and the Proxy to ensure only authorized agents can submit payloads to the engine.
+
 
 ## License
 This project is licensed under the MIT License.

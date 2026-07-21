@@ -5,10 +5,11 @@ The final production structure of the InfraGuard enterprise platform is organize
 ```text
 InfraGuard/
 ├── backend/                  # Core API and Logic
-│   ├── agents/               # AI Agent implementations
+│   ├── agents/               # AI Agent scripts (e.g. db_safe.py, devops_hacked.py)
 │   ├── api/                  # FastAPI routes and WebSocket logic
 │   ├── proxy/                # Zero-Trust Proxy & Threat Detection
-│   └── requirements.txt      # Python dependencies
+│   ├── requirements.txt      # Python dependencies
+│   └── simulate_agent.py     # Interactive CLI to run agents via the proxy engine
 ├── frontend/
 │   ├── flutter_app/          # Mobile & Desktop Admin App
 │   │   ├── android/
@@ -27,12 +28,14 @@ InfraGuard/
 │       └── app.js
 ├── docs/                     # Documentation Assets
 │   ├── architecture/         # System Architecture documentation
-│   │   ├── deployment_architecture.md
+│   │   ├── ARCHITECTURE.md
 │   │   ├── folder_structure.md
-│   │   ├── request_flow.md
-│   │   ├── sequence_diagram.md
-│   │   └── system_architecture.md
-│   ├── demo_assets/
+│   │   ├── 03_component_pipeline.md
+│   │   ├── 05_sequence_diagram.md
+│   │   ├── 06_decision_flow.md
+│   │   └── 07_deployment_architecture.md
+│   ├── testing/
+│   │   └── final_test_report.md
 │   └── screenshots/
 └── demo_data/                # Mock data for testing and demonstrations
 ```
